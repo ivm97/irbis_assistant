@@ -1,0 +1,5 @@
+{
+  "client_path": "/home/ivm97/go/src/github.com/irbis_assistant/test",
+  "version_file_name": "version.json",
+  "backend_addr": "http://localhost:3000"
+}
