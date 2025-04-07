@@ -4,6 +4,8 @@ import (
 	"github.com/irbis_assistant/internal/api"
 	"github.com/irbis_assistant/internal/files"
 	"log/slog"
+	"os/exec"
+	"time"
 )
 
 type Application struct {
@@ -23,7 +25,7 @@ func (a *Application) Start() error {
 		return err
 	}
 
-	if localVer != nil && *localVer == "" {
+	if localVer == nil || *localVer == "" {
 		a.lgr.Debug("локальная версия не обнаружена")
 		err := files.WriteVersion(a.clientPath+"/IRBIS64/"+"version.json", "v0.0.0")
 		if err != nil {
@@ -37,8 +39,8 @@ func (a *Application) Start() error {
 		return err
 	}
 
-	if serverVer != nil && *serverVer == "" {
-		a.lgr.Error("версия не получена", slog.String("версия сервера", *serverVer), slog.String("версия локальная", *localVer))
+	if serverVer == nil || *serverVer == "" {
+		a.lgr.Error("не корректная версия сервера", slog.String("версия локальная", *localVer))
 		return err
 	}
 
@@ -71,5 +73,15 @@ func (a *Application) Start() error {
 		a.lgr.Error(err.Error())
 	}
 	a.lgr.Info("клиент обновлён", slog.String("версия", *serverVer))
+
+	time.Sleep(time.Second * 3)
+
+	cmd := exec.Command("cmd", "/C", a.clientPath+"/IRBIS64/CIRBISC_plus.exe")
+	err = cmd.Start()
+	if err != nil {
+		a.lgr.Error(err.Error())
+		return err
+	}
+
 	return nil
 }
